@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zoning Optimizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+
+        input,
+        button {
+            margin-top: 1rem;
+        }
+
+        pre {
+            background: #eee;
+            padding: 1rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Urban Zoning Optimizer</h1>
+
+    <label for="fileInput">Upload input.txt file:</label><br />
+    <input type="file" id="fileInput" accept=".txt" />
+
+    <pre id="output"></pre>
+
+    <script>
+        class Zone {
+            constructor(x, y, penalty) {
+                this.posX = x;
+                this.posY = y;
+                this.penalty = penalty;
+            }
+        }
+
+        class Vertex {
+            constructor(x = 0, y = 0) {
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        class ZoningOptimizer {
+            constructor(zones, required) {
+                this.allZones = zones;
+                this.totalZones = zones.length;
+                this.requiredZones = required;
+                this.minTotalPenalty = 1e18;
+                this.optimalBoundary = [];
+            }
+
+            buildRect(chosen) {
+                if (chosen.length === 0) return [];
+
+                let lx = this.allZones[chosen[0]].posX;
+                let rx = lx;
+                let by = this.allZones[chosen[0]].posY;
+                let ty = by;
+
+                for (let idx of chosen) {
+                    lx = Math.min(lx, this.allZones[idx].posX);
+                    rx = Math.max(rx, this.allZones[idx].posX);
+                    by = Math.min(by, this.allZones[idx].posY);
+                    ty = Math.max(ty, this.allZones[idx].posY);
+                }
+                return [new Vertex(lx, by), new Vertex(rx, by), new Vertex(rx, ty), new Vertex(lx, ty)];
+            }
+
+            getPerimeter(picked) {
+                if (picked.length === 0) return 0;
+
+                let lx = this.allZones[picked[0]].posX;
+                let rx = lx;
+                let by = this.allZones[picked[0]].posY;
+                let ty = by;
+
+                for (let idx of picked) {
+                    lx = Math.min(lx, this.allZones[idx].posX);
+                    rx = Math.max(rx, this.allZones[idx].posX);
+                    by = Math.min(by, this.allZones[idx].posY);
+                    ty = Math.max(ty, this.allZones[idx].posY);
+                }
+
+                return 2 * ((rx - lx) + (ty - by));
+            }
+
+            testSelection(combo) {
+                if (combo.length < this.requiredZones) return;
+
+                let perim = this.getPerimeter(combo);
+                let zonePenalty = 0;
+                for (let idx of combo) zonePenalty += this.allZones[idx].penalty;
+
+                let combinedCost = perim + zonePenalty;
+                if (combinedCost < this.minTotalPenalty) {
+                    this.minTotalPenalty = combinedCost;
+                    this.optimalBoundary = this.buildRect(combo);
+                }
+            }
+
+            greedySelection() {
+                let chosenZones = [];
+                let tagged = new Array(this.totalZones).fill(false);
+
+                let zoneIdx = [...Array(this.totalZones).keys()];
+                zoneIdx.sort((a, b) => this.allZones[a].penalty - this.allZones[b].penalty);
+
+                for (let i = 0; i < this.requiredZones && i < this.totalZones; i++) {
+                    chosenZones.push(zoneIdx[i]);
+                    tagged[zoneIdx[i]] = true;
+                }
+
+                for (let i = this.requiredZones; i < this.totalZones && i < this.requiredZones + 10; i++) {
+                    if (this.allZones[zoneIdx[i]].penalty < 0) {
+                        let temp = [...chosenZones];
+                        temp.push(zoneIdx[i]);
+
+                        let curCost = this.getPerimeter(chosenZones);
+                        for (let idx of chosenZones) curCost += this.allZones[idx].penalty;
+
+                        let altCost = this.getPerimeter(temp);
+                        for (let idx of temp) altCost += this.allZones[idx].penalty;
+
+                        if (altCost < curCost) {
+                            chosenZones = temp;
+                        }
+                    }
+                }
+                return chosenZones;
+            }
+
+            gatherNegatives() {
+                let negatives = [];
+                for (let i = 0; i < this.totalZones; i++) {
+                    if (this.allZones[i].penalty < 0) negatives.push(i);
+                }
+
+                if (negatives.length >= this.requiredZones) return negatives;
+
+                let positives = [];
+                for (let i = 0; i < this.totalZones; i++) {
+                    if (this.allZones[i].penalty >= 0) positives.push(i);
+                }
+
+                positives.sort((a, b) => this.allZones[a].penalty - this.allZones[b].penalty);
+
+                let finalSet = [...negatives];
+                for (let i = 0; i < positives.length && finalSet.length < this.requiredZones; i++) {
+                    finalSet.push(positives[i]);
+                }
+                return finalSet;
+            }
+
+            optimize() {
+                let s1 = this.gatherNegatives();
+                this.testSelection(s1);
+
+                let s2 = this.greedySelection();
+                this.testSelection(s2);
+
+                let ids = [...Array(this.totalZones).keys()];
+                ids.sort((a, b) => this.allZones[a].penalty - this.allZones[b].penalty);
+                let s3 = ids.slice(0, this.requiredZones);
+                this.testSelection(s3);
+
+                return { cost: this.minTotalPenalty, boundary: this.optimalBoundary };
+            }
+        }
+
+        // Handle file input and run optimization
+        document.getElementById('fileInput').addEventListener('change', function (evt) {
+            const outputEl = document.getElementById('output');
+            outputEl.textContent = 'Processing...';
+
+            const file = evt.target.files[0];
+            if (!file) {
+                outputEl.textContent = 'No file selected.';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result.trim();
+                const lines = text.split(/\r?\n/);
+
+                if (lines.length < 1) {
+                    outputEl.textContent = 'Invalid input file format.';
+                    return;
+                }
+
+                // Parse N and K
+                const [Nstr, Kstr] = lines[0].trim().split(/\s+/);
+                const N = parseInt(Nstr, 10);
+                const K = parseInt(Kstr, 10);
+
+                if (isNaN(N) || isNaN(K) || N <= 0 || K <= 0) {
+                    outputEl.textContent = 'Invalid N or K values.';
+                    return;
+                }
+
+                if (lines.length < N + 1) {
+                    outputEl.textContent = `Input file should have ${N} building data lines.`;
+                    return;
+                }
+
+                let zones = [];
+                for (let i = 1; i <= N; i++) {
+                    const parts = lines[i].trim().split(/\s+/);
+                    if (parts.length < 3) {
+                        outputEl.textContent = `Invalid data on line ${i + 1}`;
+                        return;
+                    }
+                    const x = parseFloat(parts[0]);
+                    const y = parseFloat(parts[1]);
+                    const penalty = parseFloat(parts[2]);
+                    if (isNaN(x) || isNaN(y) || isNaN(penalty)) {
+                        outputEl.textContent = `Invalid numbers on line ${i + 1}`;
+                        return;
+                    }
+                    zones.push(new Zone(x, y, penalty));
+                }
+
+                const optimizer = new ZoningOptimizer(zones, K);
+                const result = optimizer.optimize();
+
+                // Prepare output text
+                let outputText = `Minimum total cost: ${result.cost.toFixed(6)}\n\nPolygon edges:\n`;
+                const boundary = result.boundary;
+                if (boundary.length === 0) {
+                    outputText += "(No polygon boundary)";
+                } else {
+                    for (let i = 0; i < boundary.length; i++) {
+                        const j = (i + 1) % boundary.length;
+                        outputText += `${boundary[i].x.toFixed(6)} ${boundary[i].y.toFixed(6)} ${boundary[j].x.toFixed(6)} ${boundary[j].y.toFixed(6)}\n`;
+                    }
+                }
+
+                outputEl.textContent = outputText;
+            };
+
+            reader.onerror = function () {
+                outputEl.textContent = 'Error reading file.';
+            };
+
+            reader.readAsText(file);
+        });
+    </script>
+
+</body>
+
+</html>
