@@ -1,36 +1,28 @@
-# AXIS_ENCLOSURE_OPTI_CC
-Project Structure
-bash
-Copy
-Edit
-/AXIS_ENCLOSURE_OPTI_CC
-├── README.md              # Project overview and usage instructions
-├── index.html             # Web interface for input and output
-├── zoningoptimiser.cpp    # C++ implementation of the zoning optimizer
-└── TestCases/             # Directory containing test case files
-    └── input02.txt        # Sample input file for testing
-How to Use
-1. Compile the C++ Code
-To compile the zoningoptimiser.cpp file:
+# AXIS-ALIGNED ENCLOSURE OPTIMIZATION PROJECT- CODING CLUB(IITG)
 
-bash
-Copy
-Edit
-g++ -std=c++17 -O2 zoningoptimiser.cpp -o zoningoptimiser
-2. Run the Program
-Execute the compiled program:
+Optimal heuristic-based solver for enclosing at least **K zones/buildings** with an **axis-aligned rectangle** of **minimum total cost** (penalty + perimeter). Designed for large-scale zoning optimization in grid-based environments.
 
-bash
-Copy
-Edit
-./zoningoptimiser
-Ensure that the input02.txt file is in the same directory or adjust the file path accordingly.
+---
 
-3. Using the Web Interface
-Alternatively, you can use the provided web interface:
+## 🔧 Problem Overview
 
-Open index.html in your web browser.
+You're given `N` zones, each with `(x, y)` coordinates and a `penalty` value. Your task is to **select at least `K` zones** and enclose them in a **minimal perimeter rectangle**, such that the total cost (sum of all selected penalties + perimeter) is minimized.
 
-Upload your input.txt file through the file input field.
+---
 
-The output will be displayed directly on the webpage
+## 🚀 Solution Strategy
+
+Implemented several fast heuristics:
+- **Negative penalty greedy**: Select all zones with negative penalties and pad with the cheapest positive ones.
+- **Cost-based greedy**: Start with the `K` lowest penalty zones and explore incremental improvements.
+- **Pure cost**: Try strictly the cheapest `K` zones.
+
+These strategies run in **O(N log N)** time and are well-suited for large datasets.
+
+---
+
+## 🛠️ How to Use
+
+### 1. File Structure
+
+
