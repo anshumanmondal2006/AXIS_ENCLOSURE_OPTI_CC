@@ -11,13 +11,15 @@
 
 📁 Project Structure
 
-1. TestCases/inputxx.txt– Sample input file for testing.
+1. OUTPUT - Output files for all the sample inputs being used to test the algo.
 
-2. README.md – Documentation and usage guide for the project.
+2. TestCases/inputxx.txt – Sample input file for testing.
 
-3. index.html – Web interface for uploading input files and viewing output.
+3. README.md – Documentation and usage guide for the project.
 
-4. zoningoptimiser.cpp – Core C++ logic that solves the Axis-Aligned Enclosure Optimization problem.
+4. index.html – Web interface for uploading input files and viewing output.
+
+5. zoningoptimiser.cpp – Core C++ logic that solves the Axis-Aligned Enclosure Optimization problem.
 
 ###  Compile the C++ Code
 
