@@ -5,6 +5,16 @@
 <h2>🚀 Demo</h2>
 
 [https://axis-enclosure-opti-cc-anshuman.vercel.app/](https://axis-enclosure-opti-cc-anshuman.vercel.app/)
+📁 Project Structure
+
+TestCases/inputxx.txt– Sample input file for testing.
+
+README.md – Documentation and usage guide for the project.
+
+index.html – Web interface for uploading input files and viewing output.
+
+zoningoptimiser.cpp – Core C++ logic that solves the Axis-Aligned Enclosure Optimization problem.
+
 ###  Compile the C++ Code
 
 To compile the `zoningoptimiser.cpp` file:
