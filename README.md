@@ -1,6 +1,9 @@
 <h1 align="center" id="title">AXIS-ALIGNED ENCLOSURE OPTIMIZATION PROJECT- CODING CLUB(IITG)</h1>
 
 <p id="description">Optimal heuristic-based solver for enclosing at least K zones/buildings with an axis-aligned rectangle of minimum total cost (penalty + perimeter). Designed for large-scale zoning optimization in grid-based environments.</p>
+<p align="center">
+  <img src="assets/screenshot.png" alt="Project Screenshot" width="700"/>
+</p>
 
 <h2>🚀 Demo</h2>
 
