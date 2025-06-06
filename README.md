@@ -23,13 +23,7 @@ These strategies run in **O(N log N)** time and are well-suited for large datase
 
 ## 🛠️ How to Use
 
-### 1. File Structure
-AXIS_ENCLOSURE_OPTI_CC/
-├── zoningoptimiser.cpp # Main solver code
-├── input02.txt # Sample input file (N, K, followed by N lines of x y penalty)
-├── output.html # Optional web interface to display result
-├── README.md # This file
----
+
 
 ### 2. Compile the C++ Code
 
