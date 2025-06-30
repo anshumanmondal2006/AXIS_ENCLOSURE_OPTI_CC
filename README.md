@@ -1,4 +1,4 @@
-<h1 align="center" id="title">AXIS-ALIGNED ENCLOSURE OPTIMIZATION PROJECT- CODING CLUB(IITG)</h1>
+<h1 align="center" id="title">AXIS-ALIGNED ENCLOSURE OPTIMIZATION PROJECT- CODING CLUB (IITG)</h1>
 
 <div align="center">
   <img src="assets/PS.png" alt="Problem Statement" width="900"/>
